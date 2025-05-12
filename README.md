@@ -8,3 +8,6 @@ colcon build
 source install/setup.bash
 ros2 launch bolt_visu display.launch.py
 ```
+
+## Visualize with gz (gazebo)
+`ros2 launch bolt_visu gazebo.launch.py`

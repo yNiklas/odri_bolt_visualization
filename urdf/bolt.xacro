@@ -7,6 +7,12 @@
   xmlns:xacro="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface">
 
   <xacro:macro name="bolt_full" params="mesh_ext color_name color opacity new_leg has_passive_ankle">
+    <gazebo>
+      <plugin filename="libgz_ros2_control-system.so" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+        <parameters>$(find bolt_visu)/config/bolt_gz_controller.yaml</parameters>
+        <controller_manager_prefix_node_name>controller_manager</controller_manager_prefix_node_name>
+      </plugin>
+    </gazebo>
 
     <!-- This file is based on: https://atlas.is.localnet/confluence/display/AMDW/Quadruped+URDF+Files -->
     <link name="base_link">

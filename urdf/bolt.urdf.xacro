@@ -14,6 +14,9 @@
 
   <!-- Include the legs -->
   <xacro:include filename="bolt.xacro"/>
+  
+  <!-- Include the joint_interface -->
+  <xacro:include filename="joint_interface.xacro"/>
 
   <!-- Include the fully parametrized bolt -->
   <xacro:bolt_full
@@ -24,4 +27,22 @@
       new_leg="${new_leg}"
       has_passive_ankle="${has_passive_ankle}"/>
 
+  <gazebo>
+    <plugin filename="libgz_ros2_control-system.so" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+      <parameters>$(find bolt_visu)/config/bolt_gz_controller.yaml</parameters>
+    </plugin>
+  </gazebo>
+
+  <ros2_control name="GazeboSymSystem" type="system">
+    <hardware>
+      <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+    </hardware>
+    <xacro:joint_interface name="FR_HAA" p="10" d="0.1" t="1"/>
+    <xacro:joint_interface name="FR_HFE" p="10" d="0.1" t="1"/>
+    <xacro:joint_interface name="FR_KFE" p="10" d="0.1" t="1"/>
+
+    <xacro:joint_interface name="FL_HAA" p="10" d="0.1" t="1"/>
+    <xacro:joint_interface name="FL_HFE" p="10" d="0.1" t="1"/>
+    <xacro:joint_interface name="FL_KFE" p="10" d="0.1" t="1"/>
+  </ros2_control>
 </robot>

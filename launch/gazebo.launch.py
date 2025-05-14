@@ -26,7 +26,7 @@ def generate_launch_description():
         PythonLaunchDescriptionSource([
             PathJoinSubstitution([FindPackageShare('ros_gz_sim'), 'launch', 'gz_sim.launch.py'])
         ]),
-        launch_arguments={'gz_args': world_file}.items()
+        launch_arguments=[('gz_args', ['-r', '-v 4 empty.sdf'])]
     )
 
     robot_state_publisher = Node(
@@ -50,26 +50,27 @@ def generate_launch_description():
     joint_state_broadcaster_spawner = Node(
         package='controller_manager',
         executable='spawner',
-        arguments=['joint_state_broadcaster']
+        arguments=['joint_state_broadcaster', "--controller-manager", "/controller_manager"]
     )
-    joint_trajectory_controller_spawner = Node(
+    joint_position_controller_spawner = Node(
         package='controller_manager',
         executable='spawner',
         arguments=[
-            'joint_trajectory_controller',
-            '--param-file',
-            gz_controller_file
+            'joint_position_controller',
+            '--controller-manager',
+            '/controller_manager'
         ]
     )
-    controller_spawner = RegisterEventHandler(
-        event_handler=OnProcessExit(
-            target_action=joint_state_broadcaster_spawner,
-            on_exit=[joint_trajectory_controller_spawner]
-        )
+    controller_control_node = Node(
+        package="controller_manager",
+        executable="ros2_control_node",
+        parameters=[gz_controller_file]
     )
 
     return LaunchDescription([
         gazebo,
+        robot_state_publisher,
+        controller_control_node,
         RegisterEventHandler(
             event_handler=OnProcessExit(
                 target_action=spawn_entity,
@@ -79,10 +80,9 @@ def generate_launch_description():
         RegisterEventHandler(
             event_handler=OnProcessExit(
                 target_action=joint_state_broadcaster_spawner,
-                on_exit=[joint_trajectory_controller_spawner]
+                on_exit=[joint_position_controller_spawner]
             )
         ),
-        robot_state_publisher,
         spawn_entity,
         DeclareLaunchArgument('use_sim_time', default_value=use_sim_time)
     ])
